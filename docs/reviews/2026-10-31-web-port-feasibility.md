@@ -2,6 +2,8 @@
 
 调研日期：2026-10-31。项目基线：`3ab1c4ab1b70abed5bb739c844d2a0f337e520bf`，Godot 4.7.2。
 
+面向运维 Agent 的交付物契约、部署顺序、验收与回滚步骤见 [运维部署交接报告](../deployment/WEB_HOSTING_HANDOFF.md)。
+
 ## 决策摘要
 
 **建议推进桌面浏览器试玩原型。** 架构上可以保留 Godot、GDScript、自研车辆模型和 Jolt，把游戏导出为 WebAssembly/WebGL 2，再由 Node.js 提供网页和资源。托管工作较小；主要工作是 Compatibility 渲染适配、首包与场景内存控制，以及浏览器输入、声音、保存体验。
