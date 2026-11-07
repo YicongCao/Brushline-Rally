@@ -1,5 +1,7 @@
 # Brushline Rally
 
+**[浏览器试玩](https://yicongcao.github.io/Brushline-Rally-web/)** · 打开即玩，驾驶 F160 挑战夕照松岭。
+
 ![Brushline Rally 品牌插画](assets/brushline/banner.png)
 
 ## 简介
