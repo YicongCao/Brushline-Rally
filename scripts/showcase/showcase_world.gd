@@ -150,8 +150,9 @@ func render(shot: Dictionary,clock: float,dt: float,cut: bool = false) -> Array:
 	sky.advance(0,-1)
 	scene.presentation.flare.current_strength=0
 	scene.presentation.flare.update(scene.camera,scene.presentation.atmosphere.sun_direction,true,1)
+	# The reference cut has sun bloom but no hexagonal lens ghosts.
+	if not look.is_empty(): scene.presentation.flare.overlay.hide()
 	if look=="night":
-		scene.presentation.flare.overlay.hide()
 		scene.presentation.car_style.brake_material.emission_energy_multiplier=2.6 if telemetry[6]>.1 else .65
 	for symbol: Sprite3D in scene.presentation.checkpoints.symbols: symbol.hide()
 	# Replay a short history at an edit or seek so tire tracks don't materialize

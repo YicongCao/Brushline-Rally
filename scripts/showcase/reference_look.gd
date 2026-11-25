@@ -29,23 +29,25 @@ static func apply(scene: Node3D,look: String) -> void:
 	match look:
 		"burned":
 			palette=["ffd072","f38835","e95a20","ffe497","be4724"]
-			ground=["4d4742","75645a"]
-			ambient=Color("a7a1b1")
-			ambient_energy=.36
-			fog=Color("a07c70")
+			# Ash-grey ground under the orange sky; the reference keeps soil cool, not brown.
+			ground=["55514f","7b7570"]
+			ambient=Color("aaa6b6")
+			ambient_energy=.44
+			fog=Color("a8857a")
 			sun_color=Color("ffbe78")
 			sun_energy=1.16
 			station=2890; altitude=5; azimuth=13; disc=.028
 			_burn_trees(presentation.scenery)
 		"sunset":
-			palette=["ffe0a2","f1a282","e2766d","ffe0a8","cd7267"]
-			ground=["536d52","868566"]
-			ambient=Color("a2b7de")
+			# Saturated tangerine sky with a large glowing disc, as in the reference highway leg.
+			palette=["ffc56e","f39552","e8713f","ffe0a0","d8683f"]
+			ground=["58694f","8a8566"]
+			ambient=Color("b0b4d4")
 			ambient_energy=.46
-			fog=Color("d5a99e")
-			sun_color=Color("ffdbab")
+			fog=Color("e3a27a")
+			sun_color=Color("ffcf94")
 			sun_energy=1.38
-			station=1000; altitude=5.5; azimuth=-8; disc=.033
+			station=1000; altitude=5.5; azimuth=-8; disc=.046
 		"night":
 			palette=["202f5c","152144","070d25","718fc7","17264f"]
 			ground=["28385c","455578"]
@@ -109,7 +111,7 @@ static func paint_actor(body: Node,look: String) -> void:
 
 static func _dress_land(scenery: RallyStageScenery,look: String,direction: Vector3) -> void:
 	var tint := {
-		"grass": Color("8d9875") if look=="day" else (Color("696151") if look=="burned" else Color("647955")),
+		"grass": Color("8d9875") if look=="day" else (Color("67625a") if look=="burned" else Color("647955")),
 		"pine": Color("416e58"),"umbrella": Color("5b7757"),"shrub": Color("708162")}
 	var materials := {}
 	for kind: String in tint:
@@ -118,7 +120,8 @@ static func _dress_land(scenery: RallyStageScenery,look: String,direction: Vecto
 		materials[kind]=shader
 	for node: Node in scenery.dressing.get_children():
 		var label := str(node.name)
-		if look=="sunset" and (label=="PineStoneArch" or label.begins_with("RidgeOutcrop")):
+		# The reference highway verges are open grass; stock boulders read as blockers there.
+		if look=="sunset" and (label=="PineStoneArch" or label.begins_with("RidgeOutcrop") or label.trim_prefix("far_").trim_prefix("shadow_").begins_with("rock")):
 			node.hide()
 		elif node is MultiMeshInstance3D and not label.begins_with("shadow_") and look!="night":
 			for kind: String in materials:

@@ -30,7 +30,8 @@ void sky() {
 			COLOR += vec3(0.41,0.50,0.74)*star*step(0.984,seed)*smoothstep(0.07,0.25,EYEDIR.y);
 		} else {
 			COLOR += vec3(2.5,1.8,0.8)*disc;
-			if (film_disc>0.0) COLOR += vec3(0.65,0.33,0.10)*pow(alignment,320.0);
+			// Film suns carry a tight corona plus a broad warm bloom across the sky.
+			if (film_disc>0.0) COLOR += vec3(0.65,0.33,0.10)*pow(alignment,320.0) + vec3(0.55,0.30,0.08)*pow(alignment,28.0);
 		}
 		// Reflection radiance uses the stable broad sky illumination, not cloud edges.
 		if (painted_banks && !AT_CUBEMAP_PASS) {
