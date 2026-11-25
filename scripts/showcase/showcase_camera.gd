@@ -74,6 +74,31 @@ static func evaluate(world: RallyShowcaseWorld,shot: Dictionary,clock: float) ->
 			eye=center-forward*lerpf(10,27,u)-right*lerpf(3,14,u)+Vector3.UP*lerpf(5,20,u)
 			target=center+forward*16
 			fov=lerpf(58,63,u)
+		"reference_chase", "reference_glide":
+			# Centered game camera with a small heading lag through the bend.
+			var glide: bool=shot.camera_rail=="reference_glide"
+			var ahead := route.position_at(s+24)-route.position_at(s)
+			var behind := route.position_at(s)-route.position_at(s-18)
+			var heading := behind.lerp(ahead,.32).normalized()
+			eye=center-heading*(9.6 if glide else 8.9)+Vector3.UP*(2.25 if glide else 1.96)
+			target=center+ahead.normalized()*19+Vector3.UP*.82
+			fov=64 if glide else 61
+		"reference_overhead", "reference_departure":
+			var depart: bool=shot.camera_rail=="reference_departure"
+			eye=center-forward*(lerpf(13,37,u) if depart else 11)-right*lerpf(17,26,u)+Vector3.UP*lerpf(12,20,u)
+			target=center+forward*(lerpf(6,22,u) if depart else 7)
+			fov=lerpf(47,56,u)
+		"reference_crest":
+			# A fixed roadside camera lets the car recede down the far slope.
+			var first := RallyShowcaseWorld.telemetry_at(clip,shot.source_in)
+			var anchor := route.pose_at(first[1]+10,0)
+			eye=anchor.origin+anchor.basis.x*4+anchor.basis.z*9+Vector3.UP*2.4
+			target=route.position_at(first[1]+120)+Vector3.UP*6
+			fov=53
+		"reference_night_side":
+			eye=center+forward*7+right*23+Vector3.UP*6
+			target=center+forward*10
+			fov=44
 	var ground: float=world.scene.presentation.scenery.rendered_height_at(eye.x,eye.z)
 	eye.y=maxf(eye.y,ground+1.1)
 	return {"pose":Transform3D(Basis.looking_at(target-eye,Vector3.UP),eye),"fov":fov}

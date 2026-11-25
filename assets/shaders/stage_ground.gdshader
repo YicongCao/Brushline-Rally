@@ -13,6 +13,8 @@ uniform int mountain_section_count = 0;
 uniform vec3 mountain_sections[4];
 uniform vec3 grass_dark : source_color = vec3(0.60,0.49,0.26);
 uniform vec3 grass_light : source_color = vec3(0.81,0.69,0.40);
+uniform vec3 film_asphalt : source_color = vec3(0.0);
+uniform float film_wetness = 0.0;
 
 float hash(vec2 p) {
 	vec3 p3 = fract(vec3(p.xyx) * 0.1031);
@@ -99,7 +101,7 @@ void fragment() {
 		stone_speckle = mix(1.0,mix(0.15,0.07,asphalt),max(mud,asphalt)*on_road);
 		vec3 mud_color = mix(vec3(0.075,0.044,0.021),vec3(0.17,0.10,0.045),noise(world.xz*0.4));
 		mud_color *= 1.0-tracks*0.25;
-		vec3 tarmac = vec3(0.042,0.047,0.051)*(0.9+grit*0.2);
+		vec3 tarmac = (film_asphalt.r>0.0 ? film_asphalt : vec3(0.042,0.047,0.051))*(0.9+grit*0.2);
 		float edge_mark = smoothstep(half_width-0.32,half_width-0.25,abs(UV.x))*(1.0-smoothstep(half_width-0.17,half_width-0.10,abs(UV.x)));
 		// Faded paint, repaired asphalt islands and the occasional fine crack.
 		float crack = 1.0-smoothstep(.013,.04,abs(sin(UV.y*.38+noise(world.xz*.6)*5.0+UV.x*1.2)));
@@ -119,7 +121,7 @@ void fragment() {
 		gravel=mix(gravel,painted,patch*wear_strength*fade);
 		color = mix(color, gravel, on_road);
 	}
-	float wet = road_mesh ? clamp(zone.a*(.75+.25*noise(world.xz*1.8)),0.0,1.0) : 0.0;
+	float wet = road_mesh ? clamp(max(zone.a,film_wetness)*(0.75+0.25*noise(world.xz*1.8)),0.0,1.0) : 0.0;
 	color *= 1.0-wet*.35;
 	color *= 0.975 + grit * 0.05;
 	color += vec3(fleck * 0.005 * stone_speckle);

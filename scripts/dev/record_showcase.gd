@@ -35,7 +35,8 @@ func _run() -> void:
 	var world := Node3D.new()
 	root.add_child(world)
 	stage=RallyStageGenerator.new()
-	stage.definition=RallyContentCatalog.stage(id)
+	var challenge := RallyShowcaseWorld.challenge_for(id,vehicle)
+	stage.definition=challenge.stage
 	world.add_child(stage)
 	var definition := RallyContentCatalog.vehicle(vehicle)
 	car=RallyVehicle.new()
@@ -68,7 +69,7 @@ func _run() -> void:
 		max_lateral=maxf(max_lateral,absf(lateral))
 		road_clear=road_clear and absf(lateral)+car.config.body_size.x*.5<half+.3 and car.global_basis.y.y>.85
 		telemetry.append([elapsed,station,car.linear_velocity.length(),slip,car.command.steer,car.command.throttle,car.command.brake,car.drivetrain.gear,car.drivetrain.rpm(),lateral,car.command.handbrake,car.aids.esp_active,car.drivetrain.tc_active])
-	var data := {"stage":id,"vehicle":vehicle,"tier":0,"physics_hz":120,"sample_hz":60,"source":"physical_input_recording","start_station":start,"driver_settings":settings,"esp":car.aids.esp_mode,"tc":car.drivetrain.tc_mode,"abs":true,"recording":recorded.payload(RallyContentCatalog.challenge(id,vehicle).key(),elapsed),"telemetry":telemetry,"max_lateral":max_lateral,"road_clear":road_clear,"collisions":collisions}
+	var data := {"stage":id,"vehicle":vehicle,"tier":0,"physics_hz":120,"sample_hz":60,"source":"physical_input_recording","start_station":start,"driver_settings":settings,"esp":car.aids.esp_mode,"tc":car.drivetrain.tc_mode,"abs":true,"recording":recorded.payload(challenge.key(),elapsed),"telemetry":telemetry,"max_lateral":max_lateral,"road_clear":road_clear,"collisions":collisions}
 	var path: String=settings.get("out","res://logs/showcase/trial.json")
 	FileAccess.open(path,FileAccess.WRITE).store_string(JSON.stringify(data))
 	print("RECORDED ",path," ",telemetry.size()," frames, final s=",station," max_lateral=",max_lateral," clear=",road_clear)
@@ -85,13 +86,17 @@ func _drive(speed: float,dt: float) -> DriverCommand:
 	lateral=projection.lateral
 	var look := clampf(4+speed*.45,7,16)
 	var target := route.position_at(minf(station+look,route.length))
-	if drift_at>=0 and elapsed<drift_at: target+=route.pose_at(station+look).basis.x*float(settings.get("offset",1.5))
+	var lane := float(settings.get("lane",0))
+	if drift_at>=0 and elapsed<drift_at: lane+=float(settings.get("offset",1.5))
+	if lane!=0: target+=route.pose_at(station+look).basis.x*lane
 	var local := car.to_local(target)
 	var angle := atan2(local.x,-local.z)
 	var wanted := atan2(car.config.wheelbase*2*sin(angle),look)/car.config.max_steer_radians
 	var velocity := car.global_basis.inverse()*car.linear_velocity
 	var beta := atan2(velocity.x,maxf(1,-velocity.z))
 	var goal := cap
+	if elapsed>=float(settings.get("lift-from",INF)) and elapsed<float(settings.get("lift-to",INF)):
+		goal=minf(cap,float(settings.get("lift-speed",cap)))
 	for ahead: float in [0,15,30,50,80]:
 		var s := clampf(station+ahead,0,route.length-12)
 		var curvature := route.tangent_at(s).angle_to(route.tangent_at(s+10))/10

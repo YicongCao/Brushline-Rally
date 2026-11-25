@@ -15,6 +15,7 @@ var cursor: int = 0
 var count: int = 0
 var fade_cursor: int = 0
 var clock: float = 0
+var film_tracks := false
 
 
 func build(parent: Node3D) -> void:
@@ -58,7 +59,10 @@ func update_wheels(wheels: Array[RallyWheelState],dt: float) -> void:
 		var wheel := wheels[i]
 		var id := wheel.surface.surface_id
 		var active := wheel.grounded and wheel.load>100 and wheel.normal.y>0.5 and wheel.surface.water_depth<0.008 and absf(wheel.longitudinal_speed)>0.6
-		if id==0: active = active and (absf(wheel.slip)>0.16 or absf(wheel.slip_angle)>0.12)
+		if id==0:
+			var slip_limit := .05 if film_tracks else .16
+			var angle_limit := .035 if film_tracks else .12
+			active=active and (absf(wheel.slip)>slip_limit or absf(wheel.slip_angle)>angle_limit)
 		if not active:
 			linked[i] = false
 			continue
@@ -76,7 +80,7 @@ func update_wheels(wheels: Array[RallyWheelState],dt: float) -> void:
 			var basis := Basis(right,up,-forward).scaled_local(Vector3(0.23,1,distance+0.035))
 			mesh.set_instance_transform(cursor,Transform3D(basis,(wheel.point+previous[i])*0.5+up*0.014))
 			var color := Color("3b3022") if id!=0 else Color("141918")
-			color.a = 0.25 if id==2 else 0.15
+			color.a = (0.33 if id==0 else 0.47) if film_tracks else (0.25 if id==2 else 0.15)
 			births[cursor] = clock
 			opacity[cursor] = color.a
 			colors[cursor] = color

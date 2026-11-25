@@ -277,6 +277,7 @@ func show_home() -> void:
 	_menu_tile(secondary,"自由练习","","practice",Color("303644"),func(): modified_mode=false; garage_test=false; practice=true; tutorial=false; show_stages(),false)
 	secondary.add_theme_constant_override("separation",10)
 	_menu_tile(secondary,"相册","","gallery",Color("20252b"),show_gallery,false)
+	_menu_tile(secondary,"录屏复刻","","play",Color("20252b"),func(): start_benchmark(RallyShowcaseDirector.REFERENCE_MANIFEST),false)
 	_menu_tile(secondary,"操作指南","","guide",Color("20252b"),show_guide,false)
 	_menu_tile(secondary,"成绩册","","records",Color("20252b"),show_records,false)
 	_menu_tile(secondary,"制作名单","","credits",Color("20252b"),show_credits,false)
@@ -1129,12 +1130,13 @@ func _quit_game() -> void:
 	get_tree().quit()
 
 
-func start_benchmark() -> void:
+func start_benchmark(manifest: String = RallyShowcaseDirector.MANIFEST) -> void:
 	if loading or is_instance_valid(showcase): return
 	loading=true
 	_loading_page()
 	if transitions.sliding and transitions.sliding.is_running(): await transitions.sliding.finished
 	showcase=RallyShowcaseDirector.new()
+	showcase.manifest_path=manifest
 	layer.add_child(showcase)
 	showcase.hide()
 	showcase.preparation_progress.connect(func(value: float): progress_bar.value=value*100)
@@ -1163,7 +1165,7 @@ func _showcase_finished() -> void:
 	Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
 	audio.theme=""
 	audio.set_scene()
-	_page("沿途风景","本次演示 · 播放性能","showcase_result")
+	_page("录屏复刻" if showcase.reference_cut else "沿途风景","" if showcase.reference_cut else "本次演示 · 播放性能","showcase_result")
 	var results := RallyShowcaseResults.new()
 	results.report=showcase.performance.report()
 	column.add_child(results)

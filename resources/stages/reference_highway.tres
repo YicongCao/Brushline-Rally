@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="RallyStageDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/stage/stage_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+stage_id = "reference_highway"
+stage_version = "1"
+title = "夕阳公路"
+seed_value = 46427
+target_length = 2240.0
+road_width = 8.2
+control_points = PackedVector3Array(0, 4, 0, -16, 15, -240, -29, 24, -470, -12, 31, -670, 38, 45, -880, 83, 37, -1080, 104, 22, -1280, 86, 15, -1490, 38, 19, -1710, 24, 24, -1960, 54, 19, -2240)
+default_surface = 0
+surface_sections = PackedVector3Array()
+width_sections = PackedVector3Array()
+water_sections = PackedVector3Array()
+crests = PackedVector3Array()
+hazard_notes = Array[Dictionary]([])
+river_crossings = PackedVector3Array()
+culverts = PackedFloat32Array()
+guardrail_sections = PackedVector2Array()
+spectators = PackedFloat32Array()
+landmarks = Array[Dictionary]([{"s": 620.0, "kind": "cabin", "side": 1.0}, {"s": 1370.0, "kind": "cabin", "side": -1.0}])

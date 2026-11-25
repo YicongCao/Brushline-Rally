@@ -475,7 +475,7 @@ func _rock_material(scale_value: float) -> ShaderMaterial:
 
 
 func _build_highland_edges() -> void:
-	if generator.definition.environment_id!="highland": return
+	if generator.definition.environment_id!="highland" or generator.definition.mountain_cliff_sections.is_empty(): return
 	var rocks := RallySampleMeshes.new()
 	var rng := RandomNumberGenerator.new()
 	rng.seed = int(generator.definition.seed_value)
